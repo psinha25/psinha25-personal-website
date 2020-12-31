@@ -684,7 +684,7 @@ a:hover {
 }
 
 .intro-single {
-  height: 350px;
+  height: 100px; /* previously 350 px */
 }
 
 .intro-single .intro-content {
@@ -1206,6 +1206,7 @@ a:hover {
 /*--------------------------------------------------------------
 # Blog Single
 --------------------------------------------------------------*/
+
 .post-box,
 .form-comments,
 .box-comments,
@@ -1213,6 +1214,23 @@ a:hover {
   padding: 2rem;
   background-color: #fff;
   margin-bottom: 3rem;
+}
+
+.post-box
+.article-content 
+.blog-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;
+}
+
+.post-box
+.article-content
+.blog-image
+figcaption {
+  text-align: center;
+  color:#0062d3;
 }
 
 @media (min-width: 768px) {
@@ -1230,7 +1248,7 @@ a:hover {
 
 @media (min-width: 768px) {
   .blog-wrapper .article-title {
-    font-size: 1.9rem;
+    font-size: 2.5rem;
   }
 }
 
