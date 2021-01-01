@@ -1149,6 +1149,7 @@ a:hover {
 @media (min-width: 767px) {
   .card-blog {
     margin-bottom: 3rem;
+    height: 525px;
   }
 }
 
