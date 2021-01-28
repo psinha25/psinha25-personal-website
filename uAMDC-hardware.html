@@ -111,7 +111,7 @@
                   </li>
                   <li>
                     <span class="ion-ios-calendar"></span>
-                    <a href="">Jan. 1, 2021</a>
+                    <a href="">Jan. 27, 2021</a>
                   </li>
                   <li>
                     <span class="ion-ios-time"></span>
@@ -124,7 +124,230 @@
                 </ul>
               </div>
               <div class="article-content">
-                <h3>Coming soon!</h3>
+                <h3>Couple of Disclaimers</h3>
+                <ol type="1">
+                  <li>As usual, any opinions stated are not a reflection of the individuals in Severson Research Group or WEMPEC.</li>
+                  <li>
+                    A huge, huge shoutout to <a href="https://nathanpetersen.com/" style="color:#0078ff">Nathan Peterson</a>. He's been an amazing mentor and taught me so much during my time with the Severson Research 
+                    Group. Literally, he would sit down with me and expatiate the process of PCB design, whether it was understanding schematics, routing, etc. 
+                  </li>
+                  <li>The picture above is a 3D rendering of the uAMDC in Altium. I am still assembling the board. Pictures will be posted!</li>
+                </ol>
+                <h3>What is the uAMDC?</h3>
+                <p>
+                  The uAMDC (Micro Advanced Motor Drive Controller) is the "little brother" to the AMDC platform. Both of these printed circuit boards (PCBs) are novel platforms 
+                  that provide necessary interfaces to interact with and control power electronics. The uAMDC was created after the AMDC. While they both serve the same overall 
+                  purpose, the uAMDC was created as an alternative option for students in the Severson Research Group to use and is cheaper and smaller than the AMDC.  
+                </p>
+                <p>
+                  I guess I should probably explain what power electronics even is. This is still something I'm trying to understand, but I'll do my best to explain based off 
+                  the papers I've read, research I've done, and the things I've learned while part of the Severson Research Group. 
+                </p>
+                <p>
+                  Power electronics is a branch of electrical engineering that focuses on studying conversion of electrical power from one form to another through the use of...
+                </p>
+                <ul>
+                  <li>Inductors</li>
+                  <li>Capacitors</li>
+                  <li>Semiconductors (i.e. diodes, MOSFETS, etc.)</li>
+                </ul>
+                <p>
+                  This field is not necessarily a very common field that the average person knows about (I hadn't hear of it prior to joining the group), but it's extremely important. 
+                  All the devices we use on a daily basis need power. Laptops, PCs, phones, tablets, TVs, fridges, microwaves, everything. Just as technology itself evolves, the power 
+                  that is used to literally power these devices needs to evolves as well. As such, research in power electronics is vital. 
+                </p>
+                <p>
+                  Now back to the uAMDC. Although it is a platform that can be used for simple control algorithms of power electronics, it was built with the intent of being used to 
+                  interface with the research done in <a href="https://severson.wempec.wisc.edu/" style="color:#0078ff">Professor Eric Severson's</a> research group at UW-Madison (more on that in a bit). Specifically, the PCB is designed to interface with 
+                  bearingless motor drives which require complex control algorithms and more power and I/O.
+                </p>
+                <p>The peripherals to interface with bearingless motors on the uAMDC include ... </p>
+                <ul>
+                  <li>24 digital output channels (via 4 three phase, two level inverters)</li>
+                  <li>8 analog input channels (+/- 10V differential input)</li>
+                  <li>4 SPI ports with differential inputs and outputs</li>
+                  <li>2 quadrature encoder input</li>
+                </ul>
+                <figure class="blog-image">
+                  <img src="assets/img/uAMDC-block-diagram.jpeg" class="img-fluid" alt="">
+                  <figcaption>uAMDC Block Diagram</figcaption>
+                </figure>
+                <p>
+                  I won't describe all the peripherals and schematic documents in detail in this post, as there is quite a bit of detail involved, but if you're curious to check out the 
+                  project, the uAMDC is completely <a href="https://github.com/Severson-Group/AMDC-Hardware/tree/uamdc-rev-a/uAMDC" style="color:#0078ff">open-sourced</a>. You can download 
+                  a <a href="https://github.com/Severson-Group/AMDC-Hardware/blob/uamdc-rev-a/uAMDC/REV20201101A/uAMDC_schematics.pdf" style="color: #0078ff">PDF copy</a> of the schematics here. 
+                </p>
+                <!-- <blockquote class="blockquote">
+                  <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+                </blockquote> -->
+                <h3>The Big Difference Between uAMDC and AMDC</h3>
+                <p>
+                  The major build difference between the two platforms stems from the cost constraint that was imposed on the uAMDC design. The processing on the AMDC is handled by 
+                  the PicoZed SoM, which is very expensive. To cut down on costs, we decided to use a STM32H743 digital signal processor (DSP) along with an iCE Lattice FPGA rather than 
+                  the PicoZed.  
+                </p>
+                <p>
+                  Unlike the PicoZed on the AMDC, the best form of communication between the DSP and the FPGA had to be determined. While firmware is needed to configure the 
+                  communication between the two chips, pins on the respective chips had to be electrically connected for the firmware to work. As such, I conducted detailed research 
+                  into the different communication protocols prior to even designing the PCB.  
+                </p>
+                <p>
+                  Understanding that the speed at which data is transferred between the two chips was of high importance, there were three options that I looked into: 
+                </p>
+                <ol>
+                  <li>SPI</li>
+                  <li>Quad SPI</li>
+                  <li>Flexible Memory Controller (FMC)</li>
+                </ol>
+                <p>
+                  The SPI and Quad SPI are pretty standard high speed communication protocols for embedded systems. I won't go into too much detail about them, but if you want more 
+                  information, check out this <a href="https://ece353.engr.wisc.edu/serial-interfaces/spi/" style="color: #0078ff">website</a> (I might write more about these communication protocols in later blog posts related specifically to embedded systems). If the 
+                  FMC wasn't an option, I would've chosen to use the Quad SPI protocol, as more data can be transferred between the two chips in one clock cycle compared to the normal 
+                  SPI protocol (because the Quad SPI data line is 4 bits wide as opposed to a 1 bit SPI line, so 4x the amount of information can be transferred during the same amount 
+                  of time compared to the SPI protocol). However, after diving deeper into the FMC, I ultimately chose this option. 
+                </p>
+                <p>
+                  The <a href="https://www.st.com/content/ccc/resource/training/technical/product_training/group0/51/a3/68/fd/47/6d/43/b8/STM32F7_Memory_FSMC/files/STM32F7_Memory_FSMC.pdf/jcr:content/translations/en.STM32F7_Memory_FSMC.pdf" style="color:#0078ff">FMC</a> 
+                  is a controller internal to the STM32H743 that enables the CPU to communicate with external memories, including NOR and NAND Flash memories, PSRAM, SRAM, and 
+                  SDRAM. The controller offers 4 independent banks to support separate external memories, and each bank has an independent configuration. One of the configurations is the 
+                  width of the data bus, which can be 8 bits, 16 bits, or 32 bits. 
+                </p>
+                <p>
+                  Keeping in mind that the smallest data bus width is 8 bits for the FMC controller, if we could leverage the FPGA to act as a small memory for the DSP to interface with 
+                  (i.e. if we could write verilog code to resemble SRAM memory on the FPGA), then we could transfer 2x the amount of data using the FMC interface compared to the Quad 
+                  SPI protocol in the same period of time  and 8x the amount of data compared to the SPI protocol. As such, the FMC interface had the potential to be the fastest. 
+                </p>
+                <!-- <figure class="blog-image">
+                  <img src="assets/img/fmc-block-diagram.jpg" class="img-fluid" alt="">
+                  <figcaption>FMC Block Diagram</figcaption>
+                </figure> -->
+                <p>
+                  The only hesitation I had with this option was if it could actually work. This isn't a standard way to have a DSP and FPGA communicate, but in theory it 
+                  can be. There are some GitHub repos that used the same chips and the FMC interface as the communication protocol, so this provided me some confidence. But just to
+                   be on the safe side, in parallel to having the FMC controller electrically configured to the FPGA, I also electrically routed a SPI interface between the two as a 
+                   back up option. 
+                </p>
+                <p>
+                  Currently, I'm in the process of writing the firmware and will make a separate blog post about the process and the final results. 
+                </p>
+                <h3>PCB Design Process</h3>
+                <p>
+                  I mentioned earlier that I joined this project with no experience using CAD tools to design PCBs. To be completely honest, I didn't even know what PCB stood for until 
+                  I heard about this opportunity. However, over the course of 6 months I chipped away at the project, got my design approved by the team, ordered the board and all the 
+                  parts, assembled the board by hand, and wrote some initial firmware to verify that the board works! 
+                </p>
+                <p>
+                  After completing the PCB design, I took a step back and realized how complex the final design was and how far I've come. More importantly, I noted the exact steps I took 
+                  to go from ideation and planning to ordering and assembling. 
+                </p>
+                <ol>
+                  <li><b>Project Motivation - Understanding the Board Functionality</b></li>
+                  <!-- </br> -->
+                  <p>
+                    Professor Severson and Nathan introduced the project to me, provided requirements for the project, and explained the motivation for the project. The AMDC 
+                    ("big brother" of uAMDC) had been designed, tested, and used for some time by then. I was to keep a lot of the same peripherals but adjust some systems on the board 
+                    to decrease the price and size of the board. Another important discussion was the workflow of the project. Being part of the open-source hardware movement, the group had
+                    a specific and disciplined approach towards the development of this project and how the project would be structured in GitHub. In fact, even though the PCB has been 
+                    completely designed in Altium already, we still haven't merged the <code>uamdc-rev-a</code> branch into <code>develop</code> given that the firmware hasn't been written
+                    to verify that the design works. 
+                  </p>
+                  <li><b>Learn Overall PCB Design Procedure (& Altium)</b></li>
+                  <p>
+                    With a high level understanding of the project, my next step was to focus on learning the basics of PCB design and Altium. This involved understanding what 
+                    schematics, schematic symbols, footprints, board layout, routing, Digi-Key, SnapEDA, Ultra Librarian, etc. were. I set up some meetings with Nathan where he 
+                    did a great job simplifying the entire process and showing me some of the key features of Altium as a tool.
+                  </p>
+                  <li><b>Detailed Analysis of AMDC Schematics</b></li>
+                  <p>
+                    There wasn't a need to create a new board from scratch with this project. A lot of the peripherals that interfaced directly with bearingless motor drives could 
+                    stay the same. The key changes involved the processing and the different interfaces to interact with the host processing. As such, I first focused on understanding 
+                    the schematics on the AMDC and what I could reuse. This step was particularly difficult because my core understanding of the purposes of electrical engineering 
+                    components (i.e. LDOs, ferrite beads, etc.) was limited at the time. I spent countless of hours researching the purposes of different parts in the AMDC schematics 
+                    to create a baseline understanding for myself on what each schematic was. 
+                  </p>
+                  <li><b>Schematic Design and Part Search</b></li>
+                  <p>
+                    After determining what schematics I could reuse from the AMDC and what I had to change for the uAMDC, I made those changes by creating the electrical 
+                    configurations of the different parts. This involved finding core parts on Digi-Key (I consider a core part to be a part on a schematic document that is the main 
+                    part on the doc, such as an microcontroller) and determining other parts necessary to make the overall circuit work (often times these were little resistors 
+                    and capacitors). I used example schematic documents from STM's development platforms to assist my design (again, there's no need to create something from scratch, 
+                    especially if someone more qualified has already done something very similar). 
+                  </p>
+                  <li><b>Schematic Approval</b></li>
+                  <p>
+                    To reach this stage took me the entire summer of 2020. At this point, I had made all the new schematic documents I needed with all the new parts and electrical 
+                    configurations. Before I moved on to actually laying out the board, Professor Severson and Nathan (along with other members in the Severson Research Group) took 
+                    a detailed look at my schematic design to find any potential problems that might arise during the layout phase or assembly phase. 
+                  </p>
+                  <li><b>Board Layout - Component Placement & Routing</b></li>
+                  <p>
+                    After completing the schematics, I moved on to laying out the actual board and routing the electrical connections. While this part of the process didn't require me to 
+                    learn new electrical engineering concepts in order to understand the purpose of each part, I found this part of the process to be the most challenging. 
+                    In front of me was an abyss of parts (hundreds) and electrical connections (over 500) to place and route. It was a daunting process and I had to be very organized 
+                    and systematic with how I approached the board layout (note that this approach was suggested from Nathan and I essentially copied 
+                    <a href="https://nathanpetersen.com/2018/09/05/amdc-advanced-motor-drive-controller/#Board-Layout" style="color:#0078ff">his workflow</a>).
+                  </p>
+                  <ol>
+                    <li>Define board size, layer stackup, and design rules</li>
+                    <li>Define a general location for each subsystem (i.e. the different bearingless motor drive interfaces, power supply, interfaces for processing, etc.)</li>
+                    <li>Place surface mounts in specific locations on the board (such that they line up exactly with the AMDC)</li>
+                    <li>Place all connectors on the edges of the board</li>
+                    <li>Place rest of subsystems that interface with bearingless motors</li>
+                    <li>Place DSP and FPGA and all other little resistors, capacitors, etc. with it</li>
+                    <li>Place rest of the parts (components to interface with the DSP and FPGA along with power supply)</li>
+                    <li>Route electrical connections between the DSP and FPGA</li>
+                    <li>Route all connections within all subsystems (i.e. route electrical connections specific to the analog subsystem without routing connections from analog subsystem to the FPGA)</li>
+                    <li>Route electrical connections between bearingless motor peripherals and FPGA</li>
+                    <li>Route all electrical connections to the DSP</li>
+                    <li>Create power planes and route power</li>
+                    <li>Make adjustments, clean up board, etc. </li>
+                  </ol>
+                  <p>
+                    The entire board layout process took about 2.5 months to complete (it would've probably been a lot faster if I had prior experience with PCB design and didn't have 
+                    school to worry about). There were definitely times where I questioned whether I really enjoy PCB design given how laborious the process was and how fastidious I had to 
+                    be when routing certain signals (ethernet), but as I wrote this, I realized that it was actually a lot of fun to learn how to go from a small board idea to a full-fledge 
+                    design. 
+                  </p>
+                  <li><b>Full PCB Design Review</b></li>
+                  <p>
+                    Before ordering the board, I had one final design review to take a look at my component placement and routing. Careful attention was given to specific subsystems 
+                    (i.e. analog, ethernet, power, communication routes between DSP and FPGA) to ensure that these finicky signals were properly routed.
+                  </p>
+                </ol>
+                <h3>How'd I get involved with this project? </h3>
+                <p>
+                  It's quite funny how life serves you opportunities when you're least expecting them. For 3-4 months (during the Spring of 2020) prior to being given the opportunity to 
+                  work on the uAMDC, I was actively searching to work with professors on their research or engineering projects they needed help with. I emailed roughly 10-15 professors, 
+                  went to their office hours, and read their papers, hoping that something would pan out. I was in contact with one professor (who I'm actually working with now!), but 
+                  Covid-19 hit and UW-Madison basically shut down, so our communication ended up getting lost at the time. 
+                </p>
+                <p>
+                  Come June 2020, I get an email from the professor I had for Digital Design and Synthesis (ECE 551), explaining how Professor Severson and Nathan were looking 
+                  for an undergraduate to help them with their project. Even though I had just started my Medtronic internship for the summer and while I didn't have much interest in 
+                  the field at the time (mainly because I didn't know what PCB design, power electronics, or bearingless motor drives were) I jumped on the opportunity because I finally
+                   got to work with a professor. And I'm so glad I did! 
+                </p>
+                <p>
+                  Since being on the project, I feel like the academic space has been unlocked for me. I've gained credibility, collaborated in a research environment, made significant 
+                  progress on a rather complex project, and learned a ton! I couldn't be more grateful for Professor Severson taking me on his team and giving me the opportunity to 
+                  work on this project. 
+                </p>
+                <h3>Final Remarks</h3>
+                <p>
+                  The first thing that comes to mind when I look back on my work is growth. Because of this project, I grew so much. Obviously I learned the process of PCB design, 
+                  Altium's rich set of features and tools that can be leveraged to create complex boards, core electrical engineering concepts, and so much more, but I also joined a 
+                  team that was extremely collaborative, provided constructive feedback to one another, respected each other's talents, and enjoyed working together. I don't know how 
+                  Professor Severson and his student's did it, but the culture is the best that I've been apart of. 
+                </p>
+                <p>
+                  This was by far the biggest engineering project that I've completed and I'm proud of myself for doing so. I've always questioned whether I'm someone that just likes to 
+                  start things and never see them through, so to reach a stage where the PCB design was fully completed and the board was officially ordered was rewarding and reassuring. 
+                </p>
+                <p>
+                  As an update on where the project stands currently, I am in the testing and firmware stage. I assembled the board by hand towards the end of 2020. During the 
+                  Spring 2021 semester, I will continue assembling, testing, and writing firmware for the board to make it useable for the Severson Research Group. Stay tuned for more 
+                  posts about the uAMDC! 
+                </p>
               </div>
             </div>
            
